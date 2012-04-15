@@ -1,6 +1,58 @@
-set nocompatible
+" Andrey Tarantsov's vim config auu
+"
+" Normal mode:
+"
+" Space => Search, with very magic by default ("Normal" regex mode, more info)
+" ,Space => Clear search highlight
+" ,v => Splits to a new vertical split and switch to it
+" Control + [h,j,k,l] => move between splits
+" Tab => Next buffer
+" Shift + Tab => Previous buffer
+" ,q => Save and close all (:wqa!)
+" ,w => Save (:w!)
+" ,Esc => Quit without saving (:q!)
+" F4 => Toggle Numberlock mode (Numbers mapped to !"·$%&/()...)
+" Shift + r => Execute current buffer as ruby
+" ,d => Delete current buffer (bd)
+" ,D => Delete all buffers
+"
+" Visual mode
+"
+" ,g => git blame
+" ,h => get a link in the clipboard referencing the selected lines in Github
+"
+" Insert mode
+" jj => back to normal mode
+"
+" Plugins related
+"
+",a => Ack search
+",a| => Align Cucumber Tables
+",a= => Align lines with =
+",a: => Align lines with :
+"Control + [n,p] => Rotate Ack results
+",co => Comment lines
+",b => Fuzzy buffer explorer
+",l => Tag list
+",o => PeepOpen
+",p => Nerd tree
+",R => RbREPL
 
-set modelines=0
+
+" System options
+
+set nocompatible
+set encoding=utf-8
+set ttyfast
+set modeline        " Enable vim modeline processing with default of 3 lines
+set history=1000    " Remember this number of last commands and search patterns
+set nobackup        " No stupid backup files
+set writebackup     " Safe saving
+set swapfile        " Use swap file in case we crash
+set updatetime=500  " Save to swap every 500ms
+set autoread        " Reread files changed externally (when unchanged in Vim)
+set autowrite       " Write file on :next et al
+set hidden          " Allow to hide buffers (esp. unsaved ones)
 
 " Tab settings
 set tabstop=2
@@ -8,27 +60,54 @@ set shiftwidth=2
 set softtabstop=2
 set expandtab
 
-" Fancy things in 7.3
+" Wrap long lines
+set wrap
+set textwidth=80
+set colorcolumn=0
+let &showbreak='+++     '
+set linebreak       " Break lines on word boundaries
 
-set title
-set encoding=utf-8
-set scrolloff=3
+" Text editing options
+
 set autoindent
 set smartindent
+set backspace=indent,eol,start
+
+"  c - autoformat comments
+"  r - continue comment on Enter
+"  o - continue comment on o/O
+"  q - allow formatting of comments with gq
+"  a - reformat paragraphs as you type
+"  n - recognize numbered lists
+"  l - don't autoformat lines that were already long when editing started
+set formatoptions=croqnl
+" Recognize numbered and bulleted (-) lists
+let &formatlistpat='^\s*\(\d\+\|[-]\)[\]:.)}\t ]\s*'
+
+set showmatch       " Show matching parens for 0.5 sec
+set matchtime=5
+
+
+set nrformats=hex,alpha
+
+" Presentation options
+
+set title
+set scrolloff=3
 set showmode
-set showcmd
-set hidden
+set noshowcmd
 set wildmenu
 set wildmode=list:longest
 set visualbell
-set cursorline
-set ttyfast
-set ruler
-set backspace=indent,eol,start
+set nocursorline
+set ruler           " Display cursor line/col
 set laststatus=2
-set number
+set number          " Display line numbers
 " set relativenumber
 " set undofile  Enable 7.3 undo in saved files
+
+noremap <Leader>C :<C-U>set ve=all<CR>020li"<ESC>:set ve=<CR>a  <C-H>
+map <Leader>M 0xxd$j,C<ESC>pkdd$
 
 set statusline=%F%m%r%h%w[%L]%y[%p%%][%04v] "[%{fugitive#statusline()}]
 "              | | | | |  |   |      |  |     |    |
@@ -46,6 +125,20 @@ set statusline=%F%m%r%h%w[%L]%y[%p%%][%04v] "[%{fugitive#statusline()}]
 "              | +-- rodified flag in square brackets
 "              +-- full path to file in the rbuffer
 "}
+
+" Set the tag file search order
+set tags=./tags,./../tags,./../../tags,./../../../tags,./*/tags,~/.tags
+let tlist_objc_settings = 'ObjectiveC;P:protocols;i:interfaces;m:methods;f:functions;s:structs;e:enums;v:global vars;M:macros'
+" let Tlist_WinWidth = 60
+" " Use only current file to autocomplete from tags
+set complete=.,t
+set complete=.,w,b,u,t,i
+set completeopt=longest,menuone
+
+set previewheight=3 " Smaller tag preview window
+
+" DO NOT Use _ as a word-separator
+" set iskeyword-=_
 
 " <leader> key
 let mapleader = ","
@@ -65,31 +158,63 @@ nnoremap <leader><space> :noh<cr>
 
 :nmap <Space> /
 
-" Handle long lines correctly
-set wrap
-set textwidth=80
-set formatoptions=n
-set colorcolumn=80
-set tw=80
-
 " Show invisible characters
-" set list
-" set listchars=tab:▸\ ,eol:¬
+set list
+set listchars=tab:▸\ ,trail:¬
 
 " Move around lines
-nnoremap <up> <nop>
-nnoremap <down> <nop>
-nnoremap <left> <nop>
-nnoremap <right> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
+" nnoremap <up> <nop>
+" nnoremap <down> <nop>
+" nnoremap <left> <nop>
+" nnoremap <right> <nop>
+" inoremap <up> <nop>
+" inoremap <down> <nop>
+" inoremap <left> <nop>
+" inoremap <right> <nop>
+
+" Eclipse-style bindings
+map <C-CR> o
+map <S-CR> O
+imap <C-CR> <C-O>o
+imap <S-CR> <C-O>O
+
+" paragraph movement
+map <C-Up> {
+map <C-Down> }
+
+" word/WORD movement
+map <C-Left> b
+map <C-Right> w
+map <C-S-Left> B
+map <C-S-Right> W
+
+" speed movement
+map <S-Up> 10k
+map <S-Down> 10j
+map <S-Left> 10h
+map <S-Right> 10l
+
+" previous movement bindings for insert mode
+imap <C-Up> <C-O><C-Up>
+imap <C-Down> <C-O><C-Down>
+imap <C-Left> <C-O><C-Left>
+imap <C-Right> <C-O><C-Right>
+imap <C-S-Left> <C-O><C-S-Left>
+imap <C-S-Right> <C-O><C-S-Right>
+imap <S-Up> <C-O><S-Up>
+imap <S-Down> <C-O><S-Down>
+imap <S-Left> <C-O><S-Left>
+imap <S-Right> <C-O><S-Right>
+
+" Paste previous
+map ,p "0p
+map ,P "0P
+
 
 " inoremap <Esc> <nop>
 
-nnoremap j gj
-nnoremap k gk
+" nnoremap j gj
+" nnoremap k gk
 
 " Map ESC
 imap jj <ESC>
@@ -132,15 +257,12 @@ nmap <leader>q :wqa!<CR>
 nmap <leader>w :w!<CR>
 nmap <leader><Esc> :q!<CR>
 
+" vimrc editing
+exec "command! ReloadVimrc source " . expand("<sfile>")
+exec "command! EditVimrc edit " . expand("<sfile>")
 
-" Set the tag file search order
-" set tags=./tags;
-" let Tlist_WinWidth = 60
-" " Use only current file to autocomplete from tags
-" set complete=.,t
-
-" DO NOT Use _ as a word-separator
-" set iskeyword-=_
+hi Statement gui=NONE,underline
+hi Type gui=NONE,underline
 
 " EXTERNAL COPY / PASTE "
 set pastetoggle=<F2>
@@ -152,7 +274,7 @@ set pastetoggle=<F2>
 " Load all bundles in .vim/bundles
 call pathogen#runtime_append_all_bundles()
 
--" NERDTree
+" NERDTree
 let NERDTreeShowBookmarks = 1
 let NERDChristmasTree = 1
 let NERDTreeWinPos = "left"
@@ -163,10 +285,20 @@ map <leader>p :NERDTreeToggle<cr>
 
 " CommandT
 map <leader>o :CommandT<CR>
+map <leader>b :CommandTBuffer<CR>
+map <leader>l :<C-U>FufLine<CR>
+map <leader>t :<C-U>TlistToggle<CR>
 :set wildignore+=*.o,*.obj,.git,tmp,*.png,*.jpg,*.svg,*.ttf,*.doc,*.pdf,*.gif,*.gz,*.xls,*.rbc
 
-" Buffer window
-nmap <silent> <leader>b :FufBuffer<CR>
+augroup file_switching
+    au!
+    au BufEnter *.* let b:fswitchlocs='./'
+    au BufEnter *.h let b:fswitchdst='cpp,c,m'
+    au BufEnter *.m let b:fswitchdst='h'
+    au BufEnter *.c let b:fswitchdst='h'
+augroup END
+
+nmap <leader>; :<C-U>FSHere<CR>
 
 " AutoClose
 let g:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '#{': '}'}
@@ -184,24 +316,27 @@ set t_Co=256
 " colorscheme twilight
 " colorscheme mustang
 " colorscheme clouds_midnight
-colorscheme molokai
+" colorscheme molokai
+colorscheme koehler
+
 " GUI "
 if has("gui_running")
-  set guioptions-=T " no toolbar set guioptions-=m " no menus
-  set guioptions-=r " no scrollbar on the right
-  set guioptions-=R " no scrollbar on the right
-  set guioptions-=l " no scrollbar on the left
-  set guioptions-=b " no scrollbar on the bottom
-  set guioptions=aiA
+  " a - copy visual mode selection into the system pasteboard
+  " A - same as a for modeless selection
+  " c - use console dialogs for simple choices
+  " i - use Vim icon
+  " e - add tab pages
+  set guioptions=aAcie
   set mouse=v
   set guifont=Monaco:h12 "<- Maybe a good idea when using mac
 endif
 set guifont=Monaco:h12
 
-set nobackup
-set nowritebackup
-set noswapfile
 syntax on
+
+" Syntax customizations
+hi StatusLine   cterm=none ctermfg=black ctermbg=green
+hi StatusLineNC cterm=none ctermfg=black ctermbg=white
 
 " BLAAAME
 vmap <Leader>gb :<C-U>!git blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p<CR>
@@ -229,7 +364,7 @@ if filereadable(my_home . '.vimrc.local')
 endif
 
 " Autocompile Coffeescript files on save
-autocmd BufWritePost,FileWritePost *.coffee :silent !coffee -c <afile>
+"autocmd BufWritePost,FileWritePost *.coffee :silent !coffee -c <afile>
 
 " Autodelte trailing whitespace
 autocmd BufWritePre * :%s/\s\+$//e
@@ -372,11 +507,20 @@ function! RunNearestTest()
     call RunTestFile(":" . spec_line_number)
 endfunction
 
-map <leader>t :call RunTestFile()<cr>
-map <leader>T :call RunNearestTest()<cr>
+
+au FileType objc set
+noremap <leader>m :<C-U>make!<CR> :cwindow<CR>
+set errorformat=%f:%l:%c:\ %m,%f:%l:%c:{%*\\d:%*\\d-%*\\d:%*\\d}:\ %m
+noremap <leader>[ :<C-U>cp<CR>
+noremap <leader>] :<C-U>cn<CR>
+
+
+" map <leader>t :call RunTestFile()<cr>
+" map <leader>T :call RunNearestTest()<cr>
 " map <leader>a :call RunTests('spec')<cr>
-map <leader>c :w\|:!bundle exec cucumber<cr>
-map <leader>C :w\|:!bundle exec cucumber --tags=@wip<cr>
+" map <leader>c :w\\|:!bundle exec cucumber<cr>
+" cucumber<cr>
+" map <leader>C :w\\|:!bundle exec cucumber --tags=@wip<cr>
 
 " GRB: Put useful info in status line
 :set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
@@ -384,15 +528,16 @@ map <leader>C :w\|:!bundle exec cucumber --tags=@wip<cr>
 
 " Remap the tab key to do autocompletion or indentation depending on the
 " context (from http://www.vim.org/tips/tip.php?tip_id=102)
-function! InsertTabWrapper()
-    let col = col('.') - 1
-    if !col || getline('.')[col - 1] !~ '\k'
-        return "\<tab>"
-    else
-        return "\<c-p>"
-    endif
-endfunction
-inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-inoremap <s-tab> <c-n>
+" function! InsertTabWrapper()
+"     let col = col('.') - 1
+"     if !col || getline('.')[col - 1] !~ '\\k'
+"         return "\\<tab>"
+"     else
+"         return "\\<c-p>"
+"     endif
+" endfunction
+" inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+" inoremap <s-tab> <c-n>
 
 nnoremap <leader><leader> <c-^>
+

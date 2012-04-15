@@ -49,6 +49,19 @@ In your home directory:
 * **,p** => Nerd tree
 * **,R** => RbREPL
 
+###Commenting
+* **gc{motion}** - toggle comment (alternative: **,__**)
+* **gcc**- toggle comment on the current line
+* **,_r** - comment text to the right of the cursor
+
+###Surrounding
+* **ys{motion}X** - surround *motion* with X
+* **ysiw]** - surround the current word with [word]
+* **yssX** - wrap entire line with X
+* **yS{motion}X** - place into a line of its own, indent, then surround
+* **dsX** - delete surrounding X
+* **csXY** - change surrounding delimiter from X to Y (e.g. **cs'"**)
+* **cstX** - change surrounding delimiter to X
 
 ##Plugins
 * [Ack (instead of grep)](https://github.com/mileszs/ack.vim)
